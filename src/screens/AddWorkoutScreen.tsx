@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Button, Input } from "../components";
 import { Plus, X, Save } from "lucide-react";
 import type { Exercise, Workout } from "../types";
-
+import { v4 as uuid } from "uuid";
 interface AddWorkoutScreenProps {
   workout?: Workout | null;
   onClose: () => void;
@@ -25,9 +25,8 @@ export function AddWorkoutScreen({
   }, [workout]);
 
   const addExercise = () => {
-    console.log("addExercise pressed!");
     const newExercise: Exercise = {
-      id: crypto.randomUUID(),
+      id: uuid(),
       name: "",
       sets: 3,
       reps: 6,
@@ -51,7 +50,9 @@ export function AddWorkoutScreen({
   const isExerciseValid = (exercise: Exercise) => {
     return (
       exercise.name.trim() !== "" &&
+      typeof exercise.sets === "number" &&
       exercise.sets > 0 &&
+      typeof exercise.reps === "number" &&
       exercise.reps > 0 &&
       typeof exercise.weight === "number" &&
       exercise.weight >= 0
@@ -124,14 +125,13 @@ export function AddWorkoutScreen({
                   <div>
                     <Input
                       label="Sets"
-                      type="number"
-                      min="1"
                       value={exercise.sets}
-                      onChange={e =>
+                      onChange={e => {
+                        const value = e.target.value.replace(/[^0-9.]/g, "");
                         updateExercise(exercise.id, {
-                          sets: parseInt(e.target.value) || 0,
-                        })
-                      }
+                          sets: parseInt(value) || "",
+                        });
+                      }}
                       className="w-full bg-zinc-800/50 backdrop-blur-none rounded-lg px-3 py-2 border-none focus:none focus:ring-0"
                     />
                   </div>
@@ -139,14 +139,13 @@ export function AddWorkoutScreen({
                   <div>
                     <Input
                       label="Reps"
-                      type="number"
-                      min="1"
                       value={exercise.reps}
-                      onChange={e =>
+                      onChange={e => {
+                        const value = e.target.value.replace(/[^0-9.]/g, "");
                         updateExercise(exercise.id, {
-                          reps: parseInt(e.target.value) || 0,
-                        })
-                      }
+                          reps: parseInt(value) || "",
+                        });
+                      }}
                       className="w-full bg-zinc-800/50 backdrop-blur-none rounded-lg px-3 py-2 border-none focus:none focus:ring-0"
                     />
                   </div>
@@ -159,7 +158,7 @@ export function AddWorkoutScreen({
                       onChange={e => {
                         const value = e.target.value.replace(/[^0-9.]/g, "");
                         updateExercise(exercise.id, {
-                          weight: parseFloat(value) || "",
+                          weight: parseInt(value) || "",
                         });
                       }}
                       className="w-full bg-zinc-800/50 backdrop-blur-none rounded-lg px-3 py-2 border-none focus:none focus:ring-0"
@@ -181,12 +180,7 @@ export function AddWorkoutScreen({
             </Card>
           ))}
 
-          <Button
-            type="button"
-            variant="secondary"
-            className="w-full"
-            onClick={addExercise}
-          >
+          <Button variant="secondary" className="w-full" onClick={addExercise}>
             <Plus size={20} className="mr-2" />
             Add Exercise
           </Button>

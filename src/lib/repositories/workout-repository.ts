@@ -1,38 +1,76 @@
-import type { Workout } from "../../types";
+import type { Workout, CompletedWorkout } from "../../types";
 import type { StorageAdapter } from "../storage/types";
 
 export class WorkoutRepository {
-  private static STORAGE_KEY = "workouts";
+  private static TEMPLATES_KEY = "workout-templates";
+  private static COMPLETED_KEY = "completed-workouts";
 
   constructor(private storage: StorageAdapter) {}
 
-  async getAll(): Promise<Workout[]> {
-    const workouts = await this.storage.getItem<Workout[]>(
-      WorkoutRepository.STORAGE_KEY
+  // Template methods
+  async getAllTemplates(): Promise<Workout[]> {
+    const templates = await this.storage.getItem<Workout[]>(
+      WorkoutRepository.TEMPLATES_KEY
     );
-    return workouts || [];
+    return templates || [];
   }
 
-  async save(workout: Workout): Promise<void> {
-    const workouts = await this.getAll();
-    const existingIndex = workouts.findIndex(w => w.id === workout.id);
+  async saveTemplate(workout: Workout): Promise<void> {
+    const templates = await this.getAllTemplates();
+    const existingIndex = templates.findIndex(w => w.id === workout.id);
 
     if (existingIndex >= 0) {
-      workouts[existingIndex] = workout;
+      templates[existingIndex] = workout;
     } else {
-      workouts.push(workout);
+      templates.push(workout);
     }
 
-    await this.storage.setItem(WorkoutRepository.STORAGE_KEY, workouts);
+    await this.storage.setItem(WorkoutRepository.TEMPLATES_KEY, templates);
   }
 
-  async delete(id: string): Promise<void> {
-    const workouts = await this.getAll();
-    const filtered = workouts.filter(w => w.id !== id);
-    await this.storage.setItem(WorkoutRepository.STORAGE_KEY, filtered);
+  async deleteTemplate(id: string): Promise<void> {
+    const templates = await this.getAllTemplates();
+    const filtered = templates.filter(w => w.id !== id);
+    await this.storage.setItem(WorkoutRepository.TEMPLATES_KEY, filtered);
+  }
+
+  // Completed workout methods
+  async getAllCompleted(): Promise<CompletedWorkout[]> {
+    const completed = await this.storage.getItem<CompletedWorkout[]>(
+      WorkoutRepository.COMPLETED_KEY
+    );
+    return completed || [];
+  }
+
+  async saveCompleted(workout: CompletedWorkout): Promise<void> {
+    const completed = await this.getAllCompleted();
+    completed.push(workout);
+    await this.storage.setItem(WorkoutRepository.COMPLETED_KEY, completed);
+  }
+
+  // Import/Export methods
+  async import(data: { templates: Workout[]; completed: CompletedWorkout[] }) {
+    await this.storage.setItem(WorkoutRepository.TEMPLATES_KEY, data.templates);
+    await this.storage.setItem(WorkoutRepository.COMPLETED_KEY, data.completed);
   }
 
   async clear(): Promise<void> {
-    await this.storage.removeItem(WorkoutRepository.STORAGE_KEY);
+    await this.storage.removeItem(WorkoutRepository.TEMPLATES_KEY);
+    await this.storage.removeItem(WorkoutRepository.COMPLETED_KEY);
+  }
+
+  async getNextWorkout(): Promise<Workout | null> {
+    const templates = await this.getAllTemplates();
+    if (templates.length === 0) return null;
+
+    const completed = await this.getAllCompleted();
+    if (completed.length === 0) return templates[0];
+
+    const lastCompleted = completed[completed.length - 1];
+    const currentIndex = templates.findIndex(t => t.id === lastCompleted.id);
+
+    // Get next workout, wrapping around to beginning if needed
+    const nextIndex = (currentIndex + 1) % templates.length;
+    return templates[nextIndex];
   }
 }

@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../utils/cn";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "critical";
   size?: "sm" | "md" | "lg";
   children: React.ReactNode;
 }
@@ -27,6 +27,8 @@ export function Button({
             variant === "secondary",
           "hover:bg-zinc-800/50 text-zinc-100 disabled:text-zinc-500 disabled:hover:bg-transparent disabled:cursor-not-allowed":
             variant === "ghost",
+          "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-900/50 disabled:cursor-not-allowed":
+            variant === "critical",
         },
         {
           "text-sm px-3 py-2": size === "sm",
@@ -36,6 +38,7 @@ export function Button({
         className
       )}
       disabled={disabled}
+      type="button"
       {...props}
     >
       {children}

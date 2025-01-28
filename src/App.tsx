@@ -1,32 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Layout, Card } from "./components";
 import { HomeScreen } from "./screens/HomeScreen";
 import { AddWorkoutScreen } from "./screens/AddWorkoutScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
 import { ActiveWorkoutScreen } from "./screens/ActiveWorkoutScreen";
-import { Tabs, type Exercise, type Workout } from "./types";
+import { HistoryScreen } from "./screens/HistoryScreen";
+import {
+  Tabs,
+  type Exercise,
+  type Workout,
+  type CompletedWorkout,
+} from "./types";
 import { StorageService } from "./lib/services/storage-service";
+import { v4 as uuid } from "uuid";
+import { useWorkouts } from "./hooks/useWorkouts";
 
 function App() {
+  const { templates: savedTemplates } = useWorkouts();
+
   const [activeTab, setActiveTab] = useState<Tabs>(Tabs.home);
   const [isAddingWorkout, setIsAddingWorkout] = useState(false);
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [templates, setTemplates] = useState<Workout[]>(savedTemplates);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
   const storage = StorageService.getInstance();
-
-  // Load workouts on mount
-  useEffect(() => {
-    const loadWorkouts = async () => {
-      try {
-        const savedWorkouts = await storage.workouts.getAll();
-        setWorkouts(savedWorkouts);
-      } catch (error) {
-        console.error("Failed to load workouts:", error);
-      }
-    };
-    loadWorkouts();
-  }, [storage.workouts]);
 
   const handleAddWorkout = async ({
     name,
@@ -36,14 +33,14 @@ function App() {
     exercises: Exercise[];
   }) => {
     const newWorkout: Workout = {
-      id: crypto.randomUUID(),
+      id: uuid(),
       name,
       exercises,
     };
 
     try {
-      await storage.workouts.save(newWorkout);
-      setWorkouts([...workouts, newWorkout]);
+      await storage.workouts.saveTemplate(newWorkout);
+      setTemplates([...templates, newWorkout]);
       setIsAddingWorkout(false);
     } catch (error) {
       console.error("Failed to save workout:", error);
@@ -67,9 +64,9 @@ function App() {
     const updatedWorkout = { ...editingWorkout, name, exercises };
 
     try {
-      await storage.workouts.save(updatedWorkout);
-      setWorkouts(
-        workouts.map(w => (w.id === editingWorkout.id ? updatedWorkout : w))
+      await storage.workouts.saveTemplate(updatedWorkout);
+      setTemplates(
+        templates.map(w => (w.id === editingWorkout.id ? updatedWorkout : w))
       );
       setEditingWorkout(null);
       setIsAddingWorkout(false);
@@ -80,8 +77,8 @@ function App() {
 
   const handleDeleteWorkout = async (id: string) => {
     try {
-      await storage.workouts.delete(id);
-      setWorkouts(workouts.filter(w => w.id !== id));
+      await storage.workouts.deleteTemplate(id);
+      setTemplates(templates.filter(w => w.id !== id));
     } catch (error) {
       console.error("Failed to delete workout:", error);
     }
@@ -92,13 +89,18 @@ function App() {
   };
 
   const handleCompleteWorkout = async (workout: Workout) => {
+    const completedWorkout: CompletedWorkout = {
+      ...workout,
+      id: uuid(),
+      completedAt: new Date().toISOString(),
+    };
+
     try {
-      await storage.workouts.save(workout);
-      setWorkouts(workouts.map(w => (w.id === workout.id ? workout : w)));
-      setActiveWorkout(null);
+      await storage.workouts.saveCompleted(completedWorkout);
     } catch (error) {
       console.error("Failed to save completed workout:", error);
     }
+    setActiveWorkout(null);
   };
 
   return (
@@ -122,20 +124,13 @@ function App() {
         <>
           {activeTab === Tabs.home && (
             <HomeScreen
-              workouts={workouts}
+              workouts={templates}
               onAddWorkout={() => setIsAddingWorkout(true)}
               onStartWorkout={handleStartWorkout}
             />
           )}
 
-          {activeTab === Tabs.history && (
-            <div className="space-y-6">
-              <h1 className="text-2xl font-bold">History</h1>
-              <Card>
-                <p className="text-zinc-400">No workouts completed yet</p>
-              </Card>
-            </div>
-          )}
+          {activeTab === Tabs.history && <HistoryScreen />}
 
           {activeTab === Tabs.progress && (
             <div className="space-y-6">
@@ -150,9 +145,10 @@ function App() {
 
           {activeTab === Tabs.settings && (
             <SettingsScreen
-              workouts={workouts}
+              workouts={templates}
               onEditWorkout={handleEditWorkout}
               onDeleteWorkout={handleDeleteWorkout}
+              loadWorkouts={loadWorkouts}
             />
           )}
         </>

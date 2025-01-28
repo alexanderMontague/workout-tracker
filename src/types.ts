@@ -5,12 +5,14 @@ export enum Tabs {
   settings = "settings",
 }
 
+// Base types for workout templates
 export interface Exercise {
   id: string;
   name: string;
-  sets: number;
-  reps: number;
+  sets: number | "";
+  reps: number | "";
   weight: number | "";
+  completed?: boolean;
   notes?: string;
 }
 
@@ -19,8 +21,10 @@ export interface Workout {
   name: string;
   exercises: Exercise[];
   notes?: string;
-  completed?: boolean;
-  completedAt?: string;
+}
+
+export interface CompletedWorkout extends Workout {
+  completedAt: string;
 }
 
 export interface WeighIn {

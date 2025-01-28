@@ -33,15 +33,10 @@ export function ActiveWorkoutScreen({
   };
 
   const handleComplete = () => {
-    const completedWorkout: Workout = {
-      ...workout,
-      completed: true,
-      completedAt: new Date().toISOString(),
-    };
-    onComplete(completedWorkout);
+    onComplete(workout);
   };
 
-  const allExercisesCompleted = exercises.some(e => e.completed);
+  const anyExerciseCompleted = exercises.some(e => e.completed);
 
   return (
     <div className="space-y-6">
@@ -93,7 +88,7 @@ export function ActiveWorkoutScreen({
         size="lg"
         className="w-full"
         onClick={handleComplete}
-        disabled={!allExercisesCompleted}
+        disabled={!anyExerciseCompleted}
       >
         End Workout
       </Button>

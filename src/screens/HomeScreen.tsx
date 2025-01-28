@@ -1,5 +1,5 @@
 import { Card, Button } from "../components";
-import { Dumbbell, Plus, Scale } from "lucide-react";
+import { Dumbbell, Plus, AlarmClock } from "lucide-react";
 import type { Workout } from "../types";
 
 interface HomeScreenProps {
@@ -70,9 +70,9 @@ export function HomeScreen({
         </Card>
 
         <Card className="flex flex-col items-center justify-center text-center p-4 hover:border-blue-500/50 transition-colors cursor-pointer">
-          <Scale className="mb-2 text-blue-400" size={24} />
-          <span className="font-medium">Log Weight</span>
-          <span className="text-sm text-zinc-400">Weekly check-in</span>
+          <AlarmClock className="mb-2 text-blue-400" size={24} />
+          <span className="font-medium">Stretch</span>
+          <span className="text-sm text-zinc-400">Time & Track</span>
         </Card>
       </div>
     </div>
