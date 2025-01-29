@@ -1,19 +1,15 @@
 import { Card, Button } from "../components";
 import { Dumbbell, Plus, AlarmClock } from "lucide-react";
 import type { Workout } from "../types";
+import { useWorkouts } from "../hooks/useWorkouts";
 
 interface HomeScreenProps {
-  workouts: Workout[];
   onAddWorkout: () => void;
   onStartWorkout: (workout: Workout) => void;
 }
 
-export function HomeScreen({
-  workouts,
-  onAddWorkout,
-  onStartWorkout,
-}: HomeScreenProps) {
-  const nextWorkout = workouts[0];
+export function HomeScreen({ onAddWorkout, onStartWorkout }: HomeScreenProps) {
+  const { nextWorkout } = useWorkouts();
 
   return (
     <div className="space-y-6">

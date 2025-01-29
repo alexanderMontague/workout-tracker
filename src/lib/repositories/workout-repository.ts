@@ -54,8 +54,11 @@ export class WorkoutRepository {
     await this.storage.setItem(WorkoutRepository.COMPLETED_KEY, data.completed);
   }
 
-  async clear(): Promise<void> {
+  async clearTemplates(): Promise<void> {
     await this.storage.removeItem(WorkoutRepository.TEMPLATES_KEY);
+  }
+
+  async clearCompleted(): Promise<void> {
     await this.storage.removeItem(WorkoutRepository.COMPLETED_KEY);
   }
 
@@ -67,7 +70,9 @@ export class WorkoutRepository {
     if (completed.length === 0) return templates[0];
 
     const lastCompleted = completed[completed.length - 1];
-    const currentIndex = templates.findIndex(t => t.id === lastCompleted.id);
+    const currentIndex = templates.findIndex(
+      t => t.id === lastCompleted.templateId
+    );
 
     // Get next workout, wrapping around to beginning if needed
     const nextIndex = (currentIndex + 1) % templates.length;

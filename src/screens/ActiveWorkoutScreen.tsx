@@ -33,7 +33,10 @@ export function ActiveWorkoutScreen({
   };
 
   const handleComplete = () => {
-    onComplete(workout);
+    onComplete({
+      ...workout,
+      exercises,
+    });
   };
 
   const anyExerciseCompleted = exercises.some(e => e.completed);

@@ -105,12 +105,15 @@ export function HistoryScreen() {
                 </div>
 
                 <div className="mt-4 space-y-1 text-sm text-zinc-400">
-                  {workout.exercises.map(exercise => (
-                    <p key={exercise.id}>
-                      • {exercise.name}: {exercise.sets}x{exercise.reps} @{" "}
-                      {exercise.weight}lbs
-                    </p>
-                  ))}
+                  {workout.exercises.map(
+                    exercise =>
+                      exercise.completed && (
+                        <p key={exercise.id}>
+                          • {exercise.name}: {exercise.sets}x{exercise.reps} @{" "}
+                          {exercise.weight}lbs
+                        </p>
+                      )
+                  )}
                 </div>
 
                 {workout.notes && (

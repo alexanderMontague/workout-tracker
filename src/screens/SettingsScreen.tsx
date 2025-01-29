@@ -2,31 +2,37 @@ import { Card, Button } from "../components";
 import { Edit2, Trash2 } from "lucide-react";
 import type { Workout } from "../types";
 import { StorageService } from "../lib/services/storage-service";
+import { useWorkouts } from "../hooks/useWorkouts";
 
 interface SettingsScreenProps {
-  workouts: Workout[];
   onEditWorkout: (workout: Workout) => void;
   onDeleteWorkout: (id: string) => void;
-  loadWorkouts: () => void;
 }
 
 export function SettingsScreen({
-  workouts,
   onEditWorkout,
   onDeleteWorkout,
-  loadWorkouts,
 }: SettingsScreenProps) {
+  const { templates, completedWorkouts, loadTemplates } = useWorkouts();
   const storage = StorageService.getInstance();
 
-  const handleClearStorage = async () => {
-    await storage.workouts.clear();
-    loadWorkouts();
+  const handleClearStorage = async (type: "all" | "completed") => {
+    if (type === "completed") {
+      await storage.workouts.clearCompleted();
+    } else if (type === "all") {
+      await storage.workouts.clearTemplates();
+      await storage.workouts.clearCompleted();
+    }
+
+    loadTemplates();
   };
 
   const handleExportStorage = async () => {
-    const templates = await storage.workouts.getAllTemplates();
-    const completed = await storage.workouts.getAllCompleted();
-    const data = JSON.stringify({ templates, completed }, null, 2);
+    const data = JSON.stringify(
+      { templates, completed: completedWorkouts },
+      null,
+      2
+    );
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -62,7 +68,7 @@ export function SettingsScreen({
         }
 
         await storage.workouts.import(data);
-        loadWorkouts();
+        loadTemplates();
       } catch (error) {
         console.error("Import error:", error);
         alert("Failed to import workouts. Invalid file format.");
@@ -81,12 +87,12 @@ export function SettingsScreen({
 
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">Your Workouts</h2>
-        {workouts.length === 0 ? (
+        {templates.length === 0 ? (
           <Card>
             <p className="text-zinc-400">No workouts created yet</p>
           </Card>
         ) : (
-          workouts.map(workout => (
+          templates.map(workout => (
             <Card key={workout.id} className="space-y-4">
               <div className="flex items-start justify-between">
                 <div>
@@ -159,9 +165,16 @@ export function SettingsScreen({
         <Button
           variant="critical"
           className="w-full"
-          onClick={handleClearStorage}
+          onClick={() => handleClearStorage("completed")}
         >
-          Clear LocalStorage
+          Clear Completed Workouts
+        </Button>
+        <Button
+          variant="critical"
+          className="w-full"
+          onClick={() => handleClearStorage("all")}
+        >
+          Clear All LocalStorage
         </Button>
       </div>
     </div>

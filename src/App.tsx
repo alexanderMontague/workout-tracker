@@ -5,102 +5,46 @@ import { AddWorkoutScreen } from "./screens/AddWorkoutScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
 import { ActiveWorkoutScreen } from "./screens/ActiveWorkoutScreen";
 import { HistoryScreen } from "./screens/HistoryScreen";
-import {
-  Tabs,
-  type Exercise,
-  type Workout,
-  type CompletedWorkout,
-} from "./types";
-import { StorageService } from "./lib/services/storage-service";
-import { v4 as uuid } from "uuid";
+import { Tabs, type Exercise, type Workout } from "./types";
 import { useWorkouts } from "./hooks/useWorkouts";
 
 function App() {
-  const { templates: savedTemplates } = useWorkouts();
+  const { addWorkout, updateWorkout, deleteWorkout, completeWorkout } =
+    useWorkouts();
 
   const [activeTab, setActiveTab] = useState<Tabs>(Tabs.home);
   const [isAddingWorkout, setIsAddingWorkout] = useState(false);
-  const [templates, setTemplates] = useState<Workout[]>(savedTemplates);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
-  const storage = StorageService.getInstance();
 
-  const handleAddWorkout = async ({
-    name,
-    exercises,
-  }: {
+  const handleAddWorkout = async (workout: {
     name: string;
     exercises: Exercise[];
   }) => {
-    const newWorkout: Workout = {
-      id: uuid(),
-      name,
-      exercises,
-    };
-
-    try {
-      await storage.workouts.saveTemplate(newWorkout);
-      setTemplates([...templates, newWorkout]);
+    const success = await addWorkout(workout);
+    if (success) {
       setIsAddingWorkout(false);
-    } catch (error) {
-      console.error("Failed to save workout:", error);
     }
   };
 
-  const handleEditWorkout = (workout: Workout) => {
-    setEditingWorkout(workout);
-    setIsAddingWorkout(true);
-  };
-
-  const handleUpdateWorkout = async ({
-    name,
-    exercises,
-  }: {
+  const handleUpdateWorkout = async (workout: {
     name: string;
     exercises: Exercise[];
   }) => {
     if (!editingWorkout) return;
 
-    const updatedWorkout = { ...editingWorkout, name, exercises };
-
-    try {
-      await storage.workouts.saveTemplate(updatedWorkout);
-      setTemplates(
-        templates.map(w => (w.id === editingWorkout.id ? updatedWorkout : w))
-      );
+    const success = await updateWorkout(editingWorkout.id, workout);
+    if (success) {
       setEditingWorkout(null);
       setIsAddingWorkout(false);
-    } catch (error) {
-      console.error("Failed to update workout:", error);
     }
-  };
-
-  const handleDeleteWorkout = async (id: string) => {
-    try {
-      await storage.workouts.deleteTemplate(id);
-      setTemplates(templates.filter(w => w.id !== id));
-    } catch (error) {
-      console.error("Failed to delete workout:", error);
-    }
-  };
-
-  const handleStartWorkout = (workout: Workout) => {
-    setActiveWorkout(workout);
   };
 
   const handleCompleteWorkout = async (workout: Workout) => {
-    const completedWorkout: CompletedWorkout = {
-      ...workout,
-      id: uuid(),
-      completedAt: new Date().toISOString(),
-    };
-
-    try {
-      await storage.workouts.saveCompleted(completedWorkout);
-    } catch (error) {
-      console.error("Failed to save completed workout:", error);
+    const success = await completeWorkout(workout);
+    if (success) {
+      setActiveWorkout(null);
     }
-    setActiveWorkout(null);
   };
 
   return (
@@ -124,9 +68,8 @@ function App() {
         <>
           {activeTab === Tabs.home && (
             <HomeScreen
-              workouts={templates}
               onAddWorkout={() => setIsAddingWorkout(true)}
-              onStartWorkout={handleStartWorkout}
+              onStartWorkout={setActiveWorkout}
             />
           )}
 
@@ -145,10 +88,11 @@ function App() {
 
           {activeTab === Tabs.settings && (
             <SettingsScreen
-              workouts={templates}
-              onEditWorkout={handleEditWorkout}
-              onDeleteWorkout={handleDeleteWorkout}
-              loadWorkouts={loadWorkouts}
+              onEditWorkout={workout => {
+                setEditingWorkout(workout);
+                setIsAddingWorkout(true);
+              }}
+              onDeleteWorkout={deleteWorkout}
             />
           )}
         </>

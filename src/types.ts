@@ -24,12 +24,6 @@ export interface Workout {
 }
 
 export interface CompletedWorkout extends Workout {
+  templateId: string;
   completedAt: string;
-}
-
-export interface WeighIn {
-  id: string;
-  weight: number;
-  date: string;
-  notes?: string;
 }
