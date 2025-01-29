@@ -11,11 +11,6 @@ export function useWorkouts() {
   const [nextWorkout, setNextWorkout] = useState<Workout | null>(null);
   const storage = StorageService.getInstance();
 
-  // Load templates on mount
-  useEffect(() => {
-    loadTemplates();
-  }, []);
-
   const loadTemplates = useCallback(async () => {
     try {
       const savedTemplates = await storage.workouts.getAllTemplates();
@@ -27,7 +22,7 @@ export function useWorkouts() {
     } catch (error) {
       console.error("Failed to load workout data:", error);
     }
-  }, []);
+  }, [storage.workouts]);
 
   const addWorkout = useCallback(
     async ({ name, exercises }: { name: string; exercises: Exercise[] }) => {
@@ -39,14 +34,12 @@ export function useWorkouts() {
 
       try {
         await storage.workouts.saveTemplate(newWorkout);
-        setTemplates(prev => [...prev, newWorkout]);
-        return true;
+        await loadTemplates();
       } catch (error) {
         console.error("Failed to save workout:", error);
-        return false;
       }
     },
-    []
+    [storage.workouts, loadTemplates]
   );
 
   const updateWorkout = useCallback(
@@ -55,51 +48,55 @@ export function useWorkouts() {
       { name, exercises }: { name: string; exercises: Exercise[] }
     ) => {
       const workoutToUpdate = templates.find(w => w.id === id);
-      if (!workoutToUpdate) return false;
+      if (!workoutToUpdate) return;
 
       const updatedWorkout = { ...workoutToUpdate, name, exercises };
 
       try {
         await storage.workouts.saveTemplate(updatedWorkout);
-        setTemplates(prev => prev.map(w => (w.id === id ? updatedWorkout : w)));
-        return true;
+        await loadTemplates();
       } catch (error) {
         console.error("Failed to update workout:", error);
-        return false;
       }
     },
-    [templates]
+    [templates, storage.workouts, loadTemplates]
   );
 
-  const deleteWorkout = useCallback(async (id: string) => {
-    try {
-      await storage.workouts.deleteTemplate(id);
-      setTemplates(prev => prev.filter(w => w.id !== id));
-      return true;
-    } catch (error) {
-      console.error("Failed to delete workout:", error);
-      return false;
-    }
-  }, []);
+  const deleteWorkout = useCallback(
+    async (id: string) => {
+      try {
+        await storage.workouts.deleteTemplate(id);
+        await loadTemplates();
+      } catch (error) {
+        console.error("Failed to delete workout:", error);
+      }
+    },
+    [storage.workouts, loadTemplates]
+  );
 
-  const completeWorkout = useCallback(async (workout: Workout) => {
-    const completedWorkout: CompletedWorkout = {
-      ...workout,
-      id: uuid(),
-      templateId: workout.id,
-      completedAt: new Date().toISOString(),
-    };
+  const completeWorkout = useCallback(
+    async (workout: Workout) => {
+      const completedWorkout: CompletedWorkout = {
+        ...workout,
+        id: uuid(),
+        templateId: workout.id,
+        completedAt: new Date().toISOString(),
+      };
 
-    try {
-      await storage.workouts.saveCompleted(completedWorkout);
-      const nextWorkout = await storage.workouts.getNextWorkout();
-      setNextWorkout(nextWorkout);
-      return true;
-    } catch (error) {
-      console.error("Failed to save completed workout:", error);
-      return false;
-    }
-  }, []);
+      try {
+        await storage.workouts.saveCompleted(completedWorkout);
+        await loadTemplates();
+      } catch (error) {
+        console.error("Failed to save completed workout:", error);
+      }
+    },
+    [storage.workouts, loadTemplates]
+  );
+
+  // Load templates on mount
+  useEffect(() => {
+    loadTemplates();
+  }, [loadTemplates]);
 
   return {
     templates,

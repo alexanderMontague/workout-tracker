@@ -6,14 +6,11 @@ import { useWorkouts } from "../hooks/useWorkouts";
 
 interface SettingsScreenProps {
   onEditWorkout: (workout: Workout) => void;
-  onDeleteWorkout: (id: string) => void;
 }
 
-export function SettingsScreen({
-  onEditWorkout,
-  onDeleteWorkout,
-}: SettingsScreenProps) {
-  const { templates, completedWorkouts, loadTemplates } = useWorkouts();
+export function SettingsScreen({ onEditWorkout }: SettingsScreenProps) {
+  const { templates, completedWorkouts, loadTemplates, deleteWorkout } =
+    useWorkouts();
   const storage = StorageService.getInstance();
 
   const handleClearStorage = async (type: "all" | "completed") => {
@@ -117,7 +114,7 @@ export function SettingsScreen({
                       if (
                         confirm("Are you sure you want to delete this workout?")
                       ) {
-                        onDeleteWorkout(workout.id);
+                        deleteWorkout(workout.id);
                       }
                     }}
                   >

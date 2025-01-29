@@ -9,8 +9,7 @@ import { Tabs, type Exercise, type Workout } from "./types";
 import { useWorkouts } from "./hooks/useWorkouts";
 
 function App() {
-  const { addWorkout, updateWorkout, deleteWorkout, completeWorkout } =
-    useWorkouts();
+  const { addWorkout, updateWorkout, completeWorkout } = useWorkouts();
 
   const [activeTab, setActiveTab] = useState<Tabs>(Tabs.home);
   const [isAddingWorkout, setIsAddingWorkout] = useState(false);
@@ -21,10 +20,9 @@ function App() {
     name: string;
     exercises: Exercise[];
   }) => {
-    const success = await addWorkout(workout);
-    if (success) {
-      setIsAddingWorkout(false);
-    }
+    await addWorkout(workout);
+    setEditingWorkout(null);
+    setIsAddingWorkout(false);
   };
 
   const handleUpdateWorkout = async (workout: {
@@ -33,18 +31,14 @@ function App() {
   }) => {
     if (!editingWorkout) return;
 
-    const success = await updateWorkout(editingWorkout.id, workout);
-    if (success) {
-      setEditingWorkout(null);
-      setIsAddingWorkout(false);
-    }
+    await updateWorkout(editingWorkout.id, workout);
+    setEditingWorkout(null);
+    setIsAddingWorkout(false);
   };
 
   const handleCompleteWorkout = async (workout: Workout) => {
-    const success = await completeWorkout(workout);
-    if (success) {
-      setActiveWorkout(null);
-    }
+    await completeWorkout(workout);
+    setActiveWorkout(null);
   };
 
   return (
@@ -59,8 +53,8 @@ function App() {
         <AddWorkoutScreen
           workout={editingWorkout}
           onClose={() => {
-            setIsAddingWorkout(false);
             setEditingWorkout(null);
+            setIsAddingWorkout(false);
           }}
           onSave={editingWorkout ? handleUpdateWorkout : handleAddWorkout}
         />
@@ -92,7 +86,6 @@ function App() {
                 setEditingWorkout(workout);
                 setIsAddingWorkout(true);
               }}
-              onDeleteWorkout={deleteWorkout}
             />
           )}
         </>
