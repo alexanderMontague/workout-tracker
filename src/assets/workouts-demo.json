@@ -1,0 +1,201 @@
+{
+  "templates": [
+    {
+      "id": "12b7f8aa-0443-4a52-8b2d-c3ad52607987",
+      "name": "Shoulders",
+      "exercises": [
+        {
+          "id": "f746b430-3c21-4377-9749-cdaff07b7d2b",
+          "name": "Military Press",
+          "sets": 3,
+          "reps": 8,
+          "weight": 95,
+          "notes": "Warm up set @ 65lbs, finisher drop set"
+        },
+        {
+          "id": "8c6a3581-3433-4201-ba72-b02f6174aa65",
+          "name": "Thumbs up diagonal raise",
+          "sets": 4,
+          "reps": 8,
+          "weight": 20
+        },
+        {
+          "id": "c8e4bcad-a15f-4e0d-9a4a-34a5d38743f2",
+          "name": "Rear delt dumbell fly",
+          "sets": 3,
+          "reps": 8,
+          "weight": 20,
+          "notes": ""
+        },
+        {
+          "id": "e5049405-c6fd-49e5-b965-e781f1ae2a74",
+          "name": "DB shoulder press",
+          "sets": 3,
+          "reps": 12,
+          "weight": 50
+        },
+        {
+          "id": "33ad99b6-0696-42cc-bcc0-6067cd2afd51",
+          "name": "Standing 90deg External Rotation",
+          "sets": 3,
+          "reps": 12,
+          "weight": 15
+        },
+        {
+          "id": "c0bb9165-81f3-4392-a03c-3eb6d11d289f",
+          "name": "Standing side rotation",
+          "sets": 3,
+          "reps": 12,
+          "weight": 15
+        },
+        {
+          "id": "52979373-e9db-4c47-89a3-67659fbb388e",
+          "name": "Rear delt band pull",
+          "sets": 3,
+          "reps": 12,
+          "weight": 1
+        },
+        {
+          "id": "505d5869-2ecb-4de6-beda-cec0891afa29",
+          "name": "Standing barbell raise",
+          "sets": 3,
+          "reps": 8,
+          "weight": 60
+        }
+      ]
+    },
+    {
+      "id": "12baaaaa-0443-4a52-8b2d-c3ad52607987",
+      "name": "Chest",
+      "exercises": [
+        {
+          "id": "f746b4aa-3c21-4377-9749-cdaff07b7d2b",
+          "name": "Bench Press",
+          "sets": 3,
+          "reps": 8,
+          "weight": 175,
+          "notes": "DB Press 3x12 65lbs if cant get a bench"
+        },
+        {
+          "id": "01c9dfaa-d913-46a7-96ea-4d083bcfbecc",
+          "name": "Incline DB Press",
+          "sets": 3,
+          "reps": 10,
+          "weight": 55
+        },
+        {
+          "id": "8c6a35aa-3433-4201-ba72-b02f6174aa65",
+          "name": "Tricep pushdown",
+          "sets": 4,
+          "reps": 8,
+          "weight": 65,
+          "notes": "50lbs on weird cable machine"
+        }
+      ]
+    },
+    {
+      "id": "df533ef8-fe89-4b0e-8a13-95295cc559d5",
+      "name": "Back",
+      "exercises": [
+        {
+          "id": "8cfd1134-f076-4527-9816-c5da88161e4c",
+          "name": "Deadlift",
+          "sets": 3,
+          "reps": 8,
+          "weight": 185,
+          "notes": "3 x 6 pull ups after each deadlift"
+        },
+        {
+          "id": "965f3867-6f6d-45aa-9ecc-aaa6309f65f1",
+          "name": "Cable Row",
+          "sets": 3,
+          "reps": 6,
+          "weight": 135
+        },
+        {
+          "id": "cd4aff79-73f6-4393-b870-e9f58bba4d5f",
+          "name": "Wide overhang row",
+          "sets": 3,
+          "reps": 6,
+          "weight": 90
+        }
+      ]
+    }
+  ],
+  "completed": [
+    {
+      "id": "94d7991e-9dad-4d05-b358-af6b979a3249",
+      "name": "Shoulders",
+      "exercises": [
+        {
+          "id": "f746b430-3c21-4377-9749-cdaff07b7d2b",
+          "name": "Military Press",
+          "sets": 3,
+          "reps": 8,
+          "weight": 95,
+          "notes": "Warm up set @ 65lbs, finisher drop set",
+          "completed": true
+        },
+        {
+          "id": "8c6a3581-3433-4201-ba72-b02f6174aa65",
+          "name": "Thumbs up diagonal raise",
+          "sets": 4,
+          "reps": 8,
+          "weight": 20,
+          "completed": true
+        },
+        {
+          "id": "c8e4bcad-a15f-4e0d-9a4a-34a5d38743f2",
+          "name": "Rear delt dumbell fly",
+          "sets": 3,
+          "reps": 8,
+          "weight": 20,
+          "notes": "",
+          "completed": true
+        },
+        {
+          "id": "e5049405-c6fd-49e5-b965-e781f1ae2a74",
+          "name": "DB shoulder press",
+          "sets": 3,
+          "reps": 12,
+          "weight": 50,
+          "completed": false
+        },
+        {
+          "id": "33ad99b6-0696-42cc-bcc0-6067cd2afd51",
+          "name": "Standing 90deg External Rotation",
+          "sets": 3,
+          "reps": 12,
+          "weight": 15,
+          "completed": true
+        },
+        {
+          "id": "c0bb9165-81f3-4392-a03c-3eb6d11d289f",
+          "name": "Standing side rotation",
+          "sets": 3,
+          "reps": 12,
+          "weight": 15,
+          "completed": true
+        },
+        {
+          "id": "52979373-e9db-4c47-89a3-67659fbb388e",
+          "name": "Rear delt band pull",
+          "sets": 3,
+          "reps": 12,
+          "weight": 1,
+          "completed": false
+        },
+        {
+          "id": "505d5869-2ecb-4de6-beda-cec0891afa29",
+          "name": "Standing barbell raise",
+          "sets": 3,
+          "reps": 8,
+          "weight": 60,
+          "completed": true
+        }
+      ],
+      "templateId": "12b7f8aa-0443-4a52-8b2d-c3ad52607987",
+      "completedAt": "2025-01-29T13:03:32.100Z"
+    }
+  ]
+}

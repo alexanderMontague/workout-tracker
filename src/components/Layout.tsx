@@ -17,7 +17,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
 
       <main className="container mx-auto p-4 pb-20">{children}</main>
 
-      <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-lg border-t border-zinc-800/50">
+      <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-lg border-t border-zinc-800/50 pb-3">
         <div className="flex justify-around items-center h-16 px-2">
           {[
             { id: Tabs.home, icon: Home, label: "Home" },
