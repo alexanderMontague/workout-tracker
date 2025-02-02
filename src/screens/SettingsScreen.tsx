@@ -1,17 +1,61 @@
-import { Card, Button } from "../components";
-import { Edit2, Trash2 } from "lucide-react";
+import { Card, Button, SortableWorkoutCard } from "../components";
 import type { Workout } from "../types";
 import { StorageService } from "../lib/services/storage-service";
 import { useWorkouts } from "../hooks/useWorkouts";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {} from "../components/SortableWorkoutCard";
 
-interface SettingsScreenProps {
+export interface SettingsScreenProps {
   onEditWorkout: (workout: Workout) => void;
 }
 
 export function SettingsScreen({ onEditWorkout }: SettingsScreenProps) {
-  const { templates, completedWorkouts, loadTemplates, deleteWorkout } =
-    useWorkouts();
+  const {
+    templates,
+    completedWorkouts,
+    nextWorkout,
+    loadTemplates,
+    deleteWorkout,
+    updateTemplateOrder,
+  } = useWorkouts();
   const storage = StorageService.getInstance();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = templates.findIndex(w => w.id === active.id);
+      const newIndex = templates.findIndex(w => w.id === over.id);
+
+      const newOrder = arrayMove(templates, oldIndex, newIndex);
+      updateTemplateOrder(newOrder);
+    }
+  };
 
   const handleClearStorage = async (type: "all" | "completed") => {
     if (type === "completed") {
@@ -89,57 +133,26 @@ export function SettingsScreen({ onEditWorkout }: SettingsScreenProps) {
             <p className="text-zinc-400">No workouts created yet</p>
           </Card>
         ) : (
-          templates.map(workout => (
-            <Card key={workout.id} className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium">{workout.name}</h3>
-                  <p className="text-sm text-zinc-400">
-                    {workout.exercises.length} exercise
-                    {workout.exercises.length !== 1 ? "s" : ""}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEditWorkout(workout)}
-                  >
-                    <Edit2 size={18} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      if (
-                        confirm("Are you sure you want to delete this workout?")
-                      ) {
-                        deleteWorkout(workout.id);
-                      }
-                    }}
-                  >
-                    <Trash2 size={18} className="text-red-400" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-1 text-sm text-zinc-400">
-                {workout.exercises.map(exercise => (
-                  <div key={exercise.id}>
-                    <p>
-                      • {exercise.name}: {exercise.sets}x{exercise.reps} @{" "}
-                      {exercise.weight}lbs
-                    </p>
-                    {exercise.notes && (
-                      <p className="ml-4 text-xs text-zinc-500">
-                        {exercise.notes}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </Card>
-          ))
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={templates.map(w => w.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {templates.map(workout => (
+                <SortableWorkoutCard
+                  key={workout.id}
+                  workout={workout}
+                  onEdit={onEditWorkout}
+                  onDelete={deleteWorkout}
+                  isNextWorkout={nextWorkout?.id === workout.id}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 

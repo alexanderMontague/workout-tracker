@@ -4,11 +4,13 @@ import { cn } from "../utils/cn";
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
+  cardRef?: React.Ref<HTMLDivElement>;
 }
 
-export function Card({ children, className, ...props }: CardProps) {
+export function Card({ children, className, cardRef, ...props }: CardProps) {
   return (
     <div
+      ref={cardRef}
       className={cn(
         "relative overflow-hidden rounded-xl bg-gradient-to-b from-zinc-900/80 to-zinc-900/60 p-6 backdrop-blur-sm border border-zinc-800/50 shadow-xl",
         className

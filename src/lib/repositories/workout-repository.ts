@@ -28,6 +28,10 @@ export class WorkoutRepository {
     await this.storage.setItem(WorkoutRepository.TEMPLATES_KEY, templates);
   }
 
+  async setAllTemplates(templates: Workout[]): Promise<void> {
+    await this.storage.setItem(WorkoutRepository.TEMPLATES_KEY, templates);
+  }
+
   async deleteTemplate(id: string): Promise<void> {
     const templates = await this.getAllTemplates();
     const filtered = templates.filter(w => w.id !== id);

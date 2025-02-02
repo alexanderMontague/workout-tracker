@@ -93,6 +93,13 @@ export function useWorkouts() {
     [storage.workouts, loadTemplates]
   );
 
+  const updateTemplateOrder = async (newOrder: Workout[]) => {
+    await storage.workouts.setAllTemplates(newOrder);
+    const nextWorkout = await storage.workouts.getNextWorkout();
+    setTemplates(newOrder);
+    setNextWorkout(nextWorkout);
+  };
+
   // Load templates on mount
   useEffect(() => {
     loadTemplates();
@@ -107,5 +114,6 @@ export function useWorkouts() {
     deleteWorkout,
     completeWorkout,
     loadTemplates,
+    updateTemplateOrder,
   };
 }
