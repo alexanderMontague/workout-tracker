@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Layout, Card } from "./components";
+import { Layout } from "./components";
 import { HomeScreen } from "./screens/HomeScreen";
 import { AddWorkoutScreen } from "./screens/AddWorkoutScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
 import { ActiveWorkoutScreen } from "./screens/ActiveWorkoutScreen";
 import { HistoryScreen } from "./screens/HistoryScreen";
+import { ProgressScreen } from "./screens/ProgressScreen";
 import { Tabs, type Exercise, type Workout } from "./types";
 import { useWorkouts } from "./hooks/useWorkouts";
 
@@ -69,16 +70,7 @@ function App() {
 
           {activeTab === Tabs.history && <HistoryScreen />}
 
-          {activeTab === Tabs.progress && (
-            <div className="space-y-6">
-              <h1 className="text-2xl font-bold">Progress</h1>
-              <Card>
-                <p className="text-zinc-400">
-                  Start working out to see your progress
-                </p>
-              </Card>
-            </div>
-          )}
+          {activeTab === Tabs.progress && <ProgressScreen />}
 
           {activeTab === Tabs.settings && (
             <SettingsScreen
