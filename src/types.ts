@@ -26,4 +26,7 @@ export interface Workout {
 export interface CompletedWorkout extends Workout {
   templateId: string;
   completedAt: string;
+  duration?: number;
 }
+
+export const STRETCH_TEMPLATE_ID = "stretch-template";

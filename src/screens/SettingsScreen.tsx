@@ -163,14 +163,14 @@ export function SettingsScreen({ onEditWorkout }: SettingsScreenProps) {
           className="w-full"
           onClick={handleExportStorage}
         >
-          Export LocalStorage
+          Export Workout Data
         </Button>
         <Button
           variant="secondary"
           className="w-full"
           onClick={handleImportStorage}
         >
-          Import LocalStorage
+          Import Workout Data
         </Button>
         <Button
           variant="critical"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, Button } from "../components";
 import { Check, X } from "lucide-react";
 import type { Workout, Exercise } from "../types";
@@ -13,6 +13,19 @@ interface ExerciseStatus extends Exercise {
   completed: boolean;
 }
 
+function formatDuration(seconds: number): string {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
+  }
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+}
+
 export function ActiveWorkoutScreen({
   workout,
   onComplete,
@@ -21,6 +34,15 @@ export function ActiveWorkoutScreen({
   const [exercises, setExercises] = useState<ExerciseStatus[]>(
     workout.exercises.map(exercise => ({ ...exercise, completed: false }))
   );
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDuration(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const toggleExercise = (id: string) => {
     setExercises(
@@ -51,6 +73,12 @@ export function ActiveWorkoutScreen({
         <Button variant="ghost" size="sm" onClick={onCancel}>
           <X size={24} />
         </Button>
+      </div>
+
+      <div className="flex justify-center">
+        <div className="text-4xl font-mono font-bold text-blue-600">
+          {formatDuration(duration)}
+        </div>
       </div>
 
       <div className="space-y-4">

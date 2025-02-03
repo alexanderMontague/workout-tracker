@@ -2,6 +2,7 @@ import { Card } from "../components";
 import { Calendar, ChevronRight } from "lucide-react";
 import type { CompletedWorkout } from "../types";
 import { useWorkouts } from "../hooks/useWorkouts";
+import { useTimer } from "../hooks/useTimer";
 
 interface GroupedWorkouts {
   [key: string]: CompletedWorkout[];
@@ -9,6 +10,7 @@ interface GroupedWorkouts {
 
 export function HistoryScreen() {
   const { completedWorkouts } = useWorkouts();
+  const { formatDuration } = useTimer();
 
   // Group workouts by month
   const groupedWorkouts = completedWorkouts.reduce(
@@ -115,6 +117,12 @@ export function HistoryScreen() {
                       )
                   )}
                 </div>
+
+                {workout.duration && (
+                  <p className="mt-3 text-sm text-zinc-500 border-t border-zinc-800/50 pt-3">
+                    Duration: {formatDuration(workout.duration)}
+                  </p>
+                )}
 
                 {workout.notes && (
                   <p className="mt-3 text-sm text-zinc-500 border-t border-zinc-800/50 pt-3">

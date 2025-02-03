@@ -1,28 +1,43 @@
 import { cn } from "../utils/cn";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
   label?: string;
-  error?: string;
+  multiline?: boolean;
+  rows?: number;
 }
 
-export function Input({ label, error, className, ...props }: InputProps) {
+export function Input({
+  label,
+  className,
+  multiline,
+  rows = 3,
+  ...props
+}: InputProps) {
+  const inputClasses = cn(
+    "w-full px-3 py-2 bg-transparent border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+    className
+  );
+
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       {label && (
-        <label className="block text-sm text-zinc-400 mb-1">{label}</label>
+        <label className="block text-sm font-medium text-zinc-400">
+          {label}
+        </label>
       )}
-      <input
-        className={cn(
-          "w-full rounded-lg border border-zinc-800 bg-zinc-900/50 px-3 py-2 text-sm text-zinc-200 shadow-sm backdrop-blur-sm transition-colors placeholder:text-zinc-400",
-          "focus:outline-none",
-          "focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50",
-          error &&
-            "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/50",
-          className
-        )}
-        {...props}
-      />
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {multiline ? (
+        <textarea
+          className={inputClasses}
+          rows={rows}
+          {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+        />
+      ) : (
+        <input
+          className={inputClasses}
+          {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
+        />
+      )}
     </div>
   );
 }

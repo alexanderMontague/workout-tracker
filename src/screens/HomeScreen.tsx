@@ -2,6 +2,8 @@ import { Card, Button } from "../components";
 import { Dumbbell, Plus, AlarmClock } from "lucide-react";
 import type { Workout } from "../types";
 import { useWorkouts } from "../hooks/useWorkouts";
+import { useState } from "react";
+import { StretchScreen } from "./StretchScreen";
 
 interface HomeScreenProps {
   onAddWorkout: () => void;
@@ -10,6 +12,11 @@ interface HomeScreenProps {
 
 export function HomeScreen({ onAddWorkout, onStartWorkout }: HomeScreenProps) {
   const { nextWorkout } = useWorkouts();
+  const [isStretchMode, setIsStretchMode] = useState(false);
+
+  if (isStretchMode) {
+    return <StretchScreen onClose={() => setIsStretchMode(false)} />;
+  }
 
   return (
     <div className="space-y-6">
@@ -65,7 +72,10 @@ export function HomeScreen({ onAddWorkout, onStartWorkout }: HomeScreenProps) {
           <span className="text-sm text-zinc-400">Create routine</span>
         </Card>
 
-        <Card className="flex flex-col items-center justify-center text-center p-4 hover:border-blue-500/50 transition-colors cursor-pointer">
+        <Card
+          className="flex flex-col items-center justify-center text-center p-4 hover:border-blue-500/50 transition-colors cursor-pointer"
+          onClick={() => setIsStretchMode(true)}
+        >
           <AlarmClock className="mb-2 text-blue-400" size={24} />
           <span className="font-medium">Stretch</span>
           <span className="text-sm text-zinc-400">Time & Track</span>
