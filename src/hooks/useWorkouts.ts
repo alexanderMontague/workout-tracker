@@ -76,12 +76,17 @@ export function useWorkouts() {
   );
 
   const completeWorkout = useCallback(
-    async (workout: Workout) => {
+    async (
+      workout: Workout,
+      options?: { duration?: number; completedAt?: string; notes?: string }
+    ) => {
       const completedWorkout: CompletedWorkout = {
         ...workout,
         id: uuid(),
         templateId: workout.id,
-        completedAt: new Date().toISOString(),
+        completedAt: options?.completedAt ?? new Date().toISOString(),
+        duration: options?.duration,
+        notes: options?.notes,
       };
 
       try {
@@ -89,6 +94,30 @@ export function useWorkouts() {
         await loadTemplates();
       } catch (error) {
         console.error("Failed to save completed workout:", error);
+      }
+    },
+    [storage.workouts, loadTemplates]
+  );
+
+  const updateCompletedWorkout = useCallback(
+    async (workout: CompletedWorkout) => {
+      try {
+        await storage.workouts.updateCompleted(workout);
+        await loadTemplates();
+      } catch (error) {
+        console.error("Failed to update completed workout:", error);
+      }
+    },
+    [storage.workouts, loadTemplates]
+  );
+
+  const deleteCompletedWorkout = useCallback(
+    async (id: string) => {
+      try {
+        await storage.workouts.deleteCompleted(id);
+        await loadTemplates();
+      } catch (error) {
+        console.error("Failed to delete completed workout:", error);
       }
     },
     [storage.workouts, loadTemplates]
@@ -136,6 +165,8 @@ export function useWorkouts() {
     updateWorkout,
     deleteWorkout,
     completeWorkout,
+    updateCompletedWorkout,
+    deleteCompletedWorkout,
     loadTemplates,
     updateTemplateOrder,
     completeStretch,

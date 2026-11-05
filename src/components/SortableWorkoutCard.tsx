@@ -5,17 +5,22 @@ import { Card, Badge } from ".";
 import { Edit2, GripVertical, Trash2 } from "lucide-react";
 import { Button } from "./Button";
 import { cn } from "../utils/cn";
+import { formatExerciseSummary } from "../utils/exercise";
 
 export function SortableWorkoutCard({
   workout,
   onEdit,
   onDelete,
+  onStart,
   isNextWorkout,
+  showExercises = false,
 }: {
   workout: Workout;
   onEdit: (workout: Workout) => void;
   onDelete: (id: string) => void;
+  onStart?: (workout: Workout, mode: "live" | "log") => void;
   isNextWorkout: boolean;
+  showExercises?: boolean;
 }) {
   const {
     attributes,
@@ -48,13 +53,13 @@ export function SortableWorkoutCard({
               <h3 className="font-medium">{workout.name}</h3>
               {isNextWorkout && (
                 <Badge variant="primary" className="text-xs ml-3">
-                  Current Next Workout
+                  Up next
                 </Badge>
               )}
             </div>
             <p className="text-sm text-zinc-400">
-              {workout.exercises.length} exercise
-              {workout.exercises.length !== 1 ? "s" : ""}
+              {workout.exercises.length}{" "}
+              {workout.exercises.length === 1 ? "exercise" : "exercises"}
             </p>
           </div>
         </div>
@@ -76,20 +81,38 @@ export function SortableWorkoutCard({
         </div>
       </div>
 
-      <div className="space-y-1 text-sm text-zinc-400">
-        {workout.exercises.map(exercise => (
-          <div key={exercise.id}>
-            <p>
-              • {exercise.name}: {exercise.sets}x{exercise.reps} @{" "}
-              {exercise.weight}
-              lbs
-            </p>
-            {exercise.notes && (
-              <p className="ml-4 text-xs text-zinc-500">{exercise.notes}</p>
-            )}
-          </div>
-        ))}
-      </div>
+      {showExercises && (
+        <div className="space-y-1 text-sm text-zinc-400">
+          {workout.exercises.map(exercise => (
+            <div key={exercise.id}>
+              <p>
+                • {exercise.name}: {formatExerciseSummary(exercise)}
+              </p>
+              {exercise.notes && (
+                <p className="ml-4 text-xs text-zinc-500">{exercise.notes}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {onStart && (
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            className="w-full"
+            onClick={() => onStart(workout, "live")}
+          >
+            Start live
+          </Button>
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => onStart(workout, "log")}
+          >
+            Log after
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }

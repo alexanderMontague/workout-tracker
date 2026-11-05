@@ -5,15 +5,28 @@ export enum Tabs {
   settings = "settings",
 }
 
+export type ExerciseTracking = "reps" | "time";
+export type WorkoutSessionMode = "live" | "log" | "edit";
+
+export interface SetLog {
+  weight: number | "";
+  reps: number | "";
+  durationSeconds?: number | "";
+  completed: boolean;
+}
+
 // Base types for workout templates
 export interface Exercise {
   id: string;
   name: string;
+  tracking?: ExerciseTracking;
   sets: number | "";
   reps: number | "";
+  durationSeconds?: number | "";
   weight: number | "";
   completed?: boolean;
   notes?: string;
+  setLogs?: SetLog[];
 }
 
 export interface Workout {

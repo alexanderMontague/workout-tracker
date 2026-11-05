@@ -6,16 +6,34 @@ import { SettingsScreen } from "./screens/SettingsScreen";
 import { ActiveWorkoutScreen } from "./screens/ActiveWorkoutScreen";
 import { HistoryScreen } from "./screens/HistoryScreen";
 import { ProgressScreen } from "./screens/ProgressScreen";
-import { Tabs, type Exercise, type Workout } from "./types";
+import {
+  Tabs,
+  type CompletedWorkout,
+  type Exercise,
+  type Workout,
+  type WorkoutSessionMode,
+} from "./types";
 import { useWorkouts } from "./hooks/useWorkouts";
 
+interface WorkoutSession {
+  mode: WorkoutSessionMode;
+  workout: Workout | CompletedWorkout;
+}
+
 function App() {
-  const { addWorkout, updateWorkout, completeWorkout } = useWorkouts();
+  const {
+    addWorkout,
+    updateWorkout,
+    completeWorkout,
+    updateCompletedWorkout,
+    deleteCompletedWorkout,
+    completedWorkouts,
+  } = useWorkouts();
 
   const [activeTab, setActiveTab] = useState<Tabs>(Tabs.home);
   const [isAddingWorkout, setIsAddingWorkout] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
-  const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
+  const [session, setSession] = useState<WorkoutSession | null>(null);
 
   const handleAddWorkout = async (workout: {
     name: string;
@@ -37,18 +55,62 @@ function App() {
     setIsAddingWorkout(false);
   };
 
-  const handleCompleteWorkout = async (workout: Workout) => {
-    await completeWorkout(workout);
-    setActiveWorkout(null);
+  const handleSaveSession = async (result: {
+    exercises: Exercise[];
+    duration?: number;
+    completedAt?: string;
+    notes?: string;
+  }) => {
+    if (!session) return;
+
+    if (session.mode === "edit") {
+      const existing = session.workout as CompletedWorkout;
+      await updateCompletedWorkout({
+        ...existing,
+        exercises: result.exercises,
+        completedAt: result.completedAt ?? existing.completedAt,
+        duration: result.duration ?? existing.duration,
+        notes: result.notes,
+      });
+    } else {
+      await completeWorkout(
+        {
+          ...session.workout,
+          exercises: result.exercises,
+          notes: result.notes,
+        },
+        {
+          duration: result.duration,
+          completedAt: result.completedAt,
+          notes: result.notes,
+        }
+      );
+    }
+
+    setSession(null);
   };
 
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
-      {activeWorkout ? (
+    <Layout
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      hideNav={!!session}
+    >
+      {session ? (
         <ActiveWorkoutScreen
-          workout={activeWorkout}
-          onComplete={handleCompleteWorkout}
-          onCancel={() => setActiveWorkout(null)}
+          workout={session.workout}
+          mode={session.mode}
+          completedWorkouts={completedWorkouts}
+          onComplete={handleSaveSession}
+          onCancel={() => setSession(null)}
+          onDelete={
+            session.mode === "edit"
+              ? async () => {
+                  await deleteCompletedWorkout(session.workout.id);
+                  setSession(null);
+                }
+              : undefined
+          }
         />
       ) : isAddingWorkout ? (
         <AddWorkoutScreen
@@ -64,22 +126,27 @@ function App() {
           {activeTab === Tabs.home && (
             <HomeScreen
               onAddWorkout={() => setIsAddingWorkout(true)}
-              onStartWorkout={setActiveWorkout}
-            />
-          )}
-
-          {activeTab === Tabs.history && <HistoryScreen />}
-
-          {activeTab === Tabs.progress && <ProgressScreen />}
-
-          {activeTab === Tabs.settings && (
-            <SettingsScreen
               onEditWorkout={workout => {
                 setEditingWorkout(workout);
                 setIsAddingWorkout(true);
               }}
+              onStartWorkout={(workout, mode) =>
+                setSession({ workout, mode })
+              }
             />
           )}
+
+          {activeTab === Tabs.history && (
+            <HistoryScreen
+              onEditWorkout={workout =>
+                setSession({ workout, mode: "edit" })
+              }
+            />
+          )}
+
+          {activeTab === Tabs.progress && <ProgressScreen />}
+
+          {activeTab === Tabs.settings && <SettingsScreen />}
         </>
       )}
     </Layout>

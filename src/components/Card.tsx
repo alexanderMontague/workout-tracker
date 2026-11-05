@@ -12,7 +12,8 @@ export function Card({ children, className, cardRef, ...props }: CardProps) {
     <div
       ref={cardRef}
       className={cn(
-        "relative overflow-hidden rounded-xl bg-gradient-to-b from-zinc-900/80 to-zinc-900/60 p-6 backdrop-blur-sm border border-zinc-800/50 shadow-xl",
+        "relative overflow-hidden rounded-xl bg-gradient-to-b from-zinc-900/80 to-zinc-900/60 p-6 backdrop-blur-sm border border-zinc-800/50 shadow-xl transition-colors duration-150",
+        props.onClick && "press cursor-pointer",
         className
       )}
       {...props}
