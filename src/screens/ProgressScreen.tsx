@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { isTimedExercise } from "../utils/exercise";
 
 export function ProgressScreen() {
   const { completedWorkouts } = useWorkouts();
@@ -29,10 +30,11 @@ export function ProgressScreen() {
       acc[exercise.name].push({
         date: workout.completedAt,
         weight: Number(exercise.weight),
-        volume:
-          Number(exercise.weight) *
-          Number(exercise.sets) *
-          Number(exercise.reps),
+        volume: isTimedExercise(exercise)
+          ? Number(exercise.sets) * Number(exercise.durationSeconds)
+          : Number(exercise.weight) *
+            Number(exercise.sets) *
+            Number(exercise.reps),
       });
     });
     return acc;

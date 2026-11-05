@@ -3,12 +3,17 @@ import { Calendar, ChevronRight } from "lucide-react";
 import type { CompletedWorkout } from "../types";
 import { useWorkouts } from "../hooks/useWorkouts";
 import { useTimer } from "../hooks/useTimer";
+import { formatExerciseSummary } from "../utils/exercise";
 
 interface GroupedWorkouts {
   [key: string]: CompletedWorkout[];
 }
 
-export function HistoryScreen() {
+interface HistoryScreenProps {
+  onEditWorkout: (workout: CompletedWorkout) => void;
+}
+
+export function HistoryScreen({ onEditWorkout }: HistoryScreenProps) {
   const { completedWorkouts } = useWorkouts();
   const { formatDuration } = useTimer();
 
@@ -92,6 +97,7 @@ export function HistoryScreen() {
               <Card
                 key={workout.id}
                 className="hover:border-blue-500/50 transition-colors cursor-pointer"
+                onClick={() => onEditWorkout(workout)}
               >
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -111,8 +117,7 @@ export function HistoryScreen() {
                     exercise =>
                       exercise.completed && (
                         <p key={exercise.id}>
-                          • {exercise.name}: {exercise.sets}x{exercise.reps} @{" "}
-                          {exercise.weight}lbs
+                          • {exercise.name}: {formatExerciseSummary(exercise)}
                         </p>
                       )
                   )}

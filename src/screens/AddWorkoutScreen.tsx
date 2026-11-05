@@ -3,6 +3,8 @@ import { Card, Button, Input } from "../components";
 import { Plus, X, Save } from "lucide-react";
 import type { Exercise, Workout } from "../types";
 import { v4 as uuid } from "uuid";
+import { cn } from "../utils/cn";
+import { isTimedExercise, parseNumberInput } from "../utils/exercise";
 interface AddWorkoutScreenProps {
   workout?: Workout | null;
   onClose: () => void;
@@ -28,9 +30,11 @@ export function AddWorkoutScreen({
     const newExercise: Exercise = {
       id: uuid(),
       name: "",
+      tracking: "reps",
       sets: 3,
       reps: 6,
-      weight: 1,
+      durationSeconds: 30,
+      weight: 0,
     };
     setExercises([...exercises, newExercise]);
   };
@@ -48,14 +52,27 @@ export function AddWorkoutScreen({
   };
 
   const isExerciseValid = (exercise: Exercise) => {
+    const hasName = exercise.name.trim() !== "";
+    const hasSets = typeof exercise.sets === "number" && exercise.sets > 0;
+    const hasWeight =
+      typeof exercise.weight === "number" && exercise.weight >= 0;
+
+    if (isTimedExercise(exercise)) {
+      return (
+        hasName &&
+        hasSets &&
+        hasWeight &&
+        typeof exercise.durationSeconds === "number" &&
+        exercise.durationSeconds > 0
+      );
+    }
+
     return (
-      exercise.name.trim() !== "" &&
-      typeof exercise.sets === "number" &&
-      exercise.sets > 0 &&
+      hasName &&
+      hasSets &&
+      hasWeight &&
       typeof exercise.reps === "number" &&
-      exercise.reps > 0 &&
-      typeof exercise.weight === "number" &&
-      exercise.weight >= 0
+      exercise.reps > 0
     );
   };
 
@@ -121,46 +138,94 @@ export function AddWorkoutScreen({
                   className="w-full bg-transparent font-medium backdrop-blur-none placeholder:text-zinc-600 border-none focus:none focus:ring-0"
                 />
 
+                <div className="flex rounded-lg bg-zinc-800/50 p-1">
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                      !isTimedExercise(exercise)
+                        ? "bg-blue-600 text-white"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    )}
+                    onClick={() =>
+                      updateExercise(exercise.id, { tracking: "reps" })
+                    }
+                  >
+                    Reps
+                  </button>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                      isTimedExercise(exercise)
+                        ? "bg-blue-600 text-white"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    )}
+                    onClick={() =>
+                      updateExercise(exercise.id, {
+                        tracking: "time",
+                        durationSeconds:
+                          typeof exercise.durationSeconds === "number"
+                            ? exercise.durationSeconds
+                            : 30,
+                      })
+                    }
+                  >
+                    Hold
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Input
                       label="Sets"
                       value={exercise.sets}
-                      onChange={e => {
-                        const value = e.target.value.replace(/[^0-9.]/g, "");
+                      onChange={e =>
                         updateExercise(exercise.id, {
-                          sets: parseInt(value) || "",
-                        });
-                      }}
+                          sets: parseNumberInput(e.target.value),
+                        })
+                      }
                       className="w-full bg-zinc-800/50 backdrop-blur-none rounded-lg px-3 py-2 border-none focus:none focus:ring-0"
                     />
                   </div>
 
-                  <div>
-                    <Input
-                      label="Reps"
-                      value={exercise.reps}
-                      onChange={e => {
-                        const value = e.target.value.replace(/[^0-9.]/g, "");
-                        updateExercise(exercise.id, {
-                          reps: parseInt(value) || "",
-                        });
-                      }}
-                      className="w-full bg-zinc-800/50 backdrop-blur-none rounded-lg px-3 py-2 border-none focus:none focus:ring-0"
-                    />
-                  </div>
+                  {isTimedExercise(exercise) ? (
+                    <div>
+                      <Input
+                        label="Hold (sec)"
+                        value={exercise.durationSeconds ?? ""}
+                        onChange={e =>
+                          updateExercise(exercise.id, {
+                            durationSeconds: parseNumberInput(e.target.value),
+                          })
+                        }
+                        className="w-full bg-zinc-800/50 backdrop-blur-none rounded-lg px-3 py-2 border-none focus:none focus:ring-0"
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <Input
+                        label="Reps"
+                        value={exercise.reps}
+                        onChange={e =>
+                          updateExercise(exercise.id, {
+                            reps: parseNumberInput(e.target.value),
+                          })
+                        }
+                        className="w-full bg-zinc-800/50 backdrop-blur-none rounded-lg px-3 py-2 border-none focus:none focus:ring-0"
+                      />
+                    </div>
+                  )}
 
                   <div>
                     <Input
                       label="Weight (lbs)"
-                      type="string"
                       value={exercise.weight}
-                      onChange={e => {
-                        const value = e.target.value.replace(/[^0-9.]/g, "");
+                      onChange={e =>
                         updateExercise(exercise.id, {
-                          weight: parseInt(value) || "",
-                        });
-                      }}
+                          weight: parseNumberInput(e.target.value),
+                        })
+                      }
                       className="w-full bg-zinc-800/50 backdrop-blur-none rounded-lg px-3 py-2 border-none focus:none focus:ring-0"
                     />
                   </div>

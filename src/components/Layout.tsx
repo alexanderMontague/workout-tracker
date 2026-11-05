@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, History, LineChart, Settings } from "lucide-react";
+import { Dumbbell, History, LineChart, Settings } from "lucide-react";
 import { Background } from "./Background";
 import { cn } from "../utils/cn";
 import { Tabs } from "../types";
@@ -20,7 +20,7 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
       <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-lg border-t border-zinc-800/50 pb-3">
         <div className="flex justify-around items-center h-16 px-2">
           {[
-            { id: Tabs.home, icon: Home, label: "Home" },
+            { id: Tabs.home, icon: Dumbbell, label: "Workouts" },
             { id: Tabs.history, icon: History, label: "History" },
             { id: Tabs.progress, icon: LineChart, label: "Progress" },
             { id: Tabs.settings, icon: Settings, label: "Settings" },

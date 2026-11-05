@@ -1,18 +1,60 @@
-import { Card, Button } from "../components";
-import { Dumbbell, Plus, AlarmClock } from "lucide-react";
+import { Card, Button, SortableWorkoutCard } from "../components";
+import { Plus, AlarmClock } from "lucide-react";
 import type { Workout } from "../types";
 import { useWorkouts } from "../hooks/useWorkouts";
 import { useState } from "react";
 import { StretchScreen } from "./StretchScreen";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 interface HomeScreenProps {
   onAddWorkout: () => void;
-  onStartWorkout: (workout: Workout) => void;
+  onEditWorkout: (workout: Workout) => void;
+  onStartWorkout: (workout: Workout, mode: "live" | "log") => void;
 }
 
-export function HomeScreen({ onAddWorkout, onStartWorkout }: HomeScreenProps) {
-  const { nextWorkout } = useWorkouts();
+export function HomeScreen({
+  onAddWorkout,
+  onEditWorkout,
+  onStartWorkout,
+}: HomeScreenProps) {
+  const { templates, nextWorkout, deleteWorkout, updateTemplateOrder } =
+    useWorkouts();
   const [isStretchMode, setIsStretchMode] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = templates.findIndex(workout => workout.id === active.id);
+      const newIndex = templates.findIndex(workout => workout.id === over.id);
+      updateTemplateOrder(arrayMove(templates, oldIndex, newIndex));
+    }
+  };
 
   if (isStretchMode) {
     return <StretchScreen onClose={() => setIsStretchMode(false)} />;
@@ -20,47 +62,14 @@ export function HomeScreen({ onAddWorkout, onStartWorkout }: HomeScreenProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Next Workout</h1>
-        <Dumbbell className="text-blue-400" size={24} />
+      <div>
+        <h1 className="text-2xl font-bold">Workouts</h1>
+        <p className="text-zinc-400">
+          {templates.length > 0
+            ? "Pick a routine, or drag to change what's up next"
+            : "Create a routine to get started"}
+        </p>
       </div>
-
-      <Card className="space-y-4">
-        {nextWorkout ? (
-          <>
-            <h2 className="text-lg font-semibold">{nextWorkout.name}</h2>
-            <div className="space-y-2 text-sm text-zinc-400">
-              {nextWorkout.exercises.map(exercise => (
-                <div key={exercise.id}>
-                  <p>
-                    • {exercise.name}: {exercise.sets}x{exercise.reps} @{" "}
-                    {exercise.weight}lbs
-                  </p>
-                  {exercise.notes && (
-                    <p className="ml-4 text-xs text-zinc-500">
-                      {exercise.notes}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-            <Button
-              size="lg"
-              className="w-full"
-              onClick={() => onStartWorkout(nextWorkout)}
-            >
-              Start Workout
-            </Button>
-          </>
-        ) : (
-          <div className="text-center py-4">
-            <p className="text-zinc-400">No workouts created yet</p>
-            <Button onClick={onAddWorkout} className="mt-4">
-              Create Your First Workout
-            </Button>
-          </div>
-        )}
-      </Card>
 
       <div className="grid grid-cols-2 gap-4">
         <Card
@@ -81,6 +90,42 @@ export function HomeScreen({ onAddWorkout, onStartWorkout }: HomeScreenProps) {
           <span className="text-sm text-zinc-400">Time & Track</span>
         </Card>
       </div>
+
+      {templates.length === 0 ? (
+        <Card>
+          <div className="text-center py-4">
+            <p className="text-zinc-400">No workouts yet</p>
+            <Button onClick={onAddWorkout} className="mt-4">
+              Create Your First Workout
+            </Button>
+          </div>
+        </Card>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={templates.map(workout => workout.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-4">
+              {templates.map(workout => (
+                <SortableWorkoutCard
+                  key={workout.id}
+                  workout={workout}
+                  onEdit={onEditWorkout}
+                  onDelete={deleteWorkout}
+                  onStart={onStartWorkout}
+                  isNextWorkout={nextWorkout?.id === workout.id}
+                  showExercises={nextWorkout?.id === workout.id}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
     </div>
   );
 }
