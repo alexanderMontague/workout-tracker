@@ -142,7 +142,7 @@ export function AddWorkoutScreen({
                   <button
                     type="button"
                     className={cn(
-                      "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                      "press flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150",
                       !isTimedExercise(exercise)
                         ? "bg-blue-600 text-white"
                         : "text-zinc-400 hover:text-zinc-200"
@@ -156,7 +156,7 @@ export function AddWorkoutScreen({
                   <button
                     type="button"
                     className={cn(
-                      "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                      "press flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150",
                       isTimedExercise(exercise)
                         ? "bg-blue-600 text-white"
                         : "text-zinc-400 hover:text-zinc-200"

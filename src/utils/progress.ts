@@ -26,6 +26,38 @@ export function isLoggedExercise(exercise: Exercise): boolean {
   return exercise.completed !== false && exercise.name.trim() !== "";
 }
 
+export interface LastPerformance {
+  exercise: Exercise;
+  completedAt: string;
+}
+
+export function lastPerformanceMap(
+  completedWorkouts: CompletedWorkout[],
+  options?: { excludeId?: string }
+): Map<string, LastPerformance> {
+  const results = new Map<string, LastPerformance>();
+
+  [...completedWorkouts]
+    .filter(workout => workout.id !== options?.excludeId)
+    .sort(
+      (a, b) =>
+        new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+    )
+    .forEach(workout => {
+      workout.exercises.filter(isLoggedExercise).forEach(exercise => {
+        const name = exercise.name.trim();
+        if (!results.has(name)) {
+          results.set(name, {
+            exercise,
+            completedAt: workout.completedAt,
+          });
+        }
+      });
+    });
+
+  return results;
+}
+
 export function metricForExercises(exercises: Exercise[]): ProgressMetric {
   const logged = exercises.filter(isLoggedExercise);
   if (logged.length === 0) return "reps";

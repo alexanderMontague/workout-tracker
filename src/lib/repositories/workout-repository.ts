@@ -62,6 +62,12 @@ export class WorkoutRepository {
     }
   }
 
+  async deleteCompleted(id: string): Promise<void> {
+    const completed = await this.getAllCompleted();
+    const filtered = completed.filter(item => item.id !== id);
+    await this.storage.setItem(WorkoutRepository.COMPLETED_KEY, filtered);
+  }
+
   // Import/Export methods
   async import(data: { templates: Workout[]; completed: CompletedWorkout[] }) {
     await this.storage.setItem(WorkoutRepository.TEMPLATES_KEY, data.templates);

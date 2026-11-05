@@ -111,6 +111,18 @@ export function useWorkouts() {
     [storage.workouts, loadTemplates]
   );
 
+  const deleteCompletedWorkout = useCallback(
+    async (id: string) => {
+      try {
+        await storage.workouts.deleteCompleted(id);
+        await loadTemplates();
+      } catch (error) {
+        console.error("Failed to delete completed workout:", error);
+      }
+    },
+    [storage.workouts, loadTemplates]
+  );
+
   const completeStretch = useCallback(
     async ({ duration, notes }: { duration: number; notes: string }) => {
       const completedStretch: CompletedWorkout = {
@@ -154,6 +166,7 @@ export function useWorkouts() {
     deleteWorkout,
     completeWorkout,
     updateCompletedWorkout,
+    deleteCompletedWorkout,
     loadTemplates,
     updateTemplateOrder,
     completeStretch,

@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer utilities {
+  .press {
+    user-select: none;
+    touch-action: manipulation;
+    transition-property: transform, background-color, border-color, color, box-shadow, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .press:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .press,
+    .press:active:not(:disabled) {
+      transform: none;
+      transition: none;
+    }
+
+    .animate-session-forward,
+    .animate-session-back,
+    .animate-rest-in,
+    .animate-pop {
+      animation: none;
+    }
+  }
+}

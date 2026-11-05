@@ -26,6 +26,8 @@ function App() {
     updateWorkout,
     completeWorkout,
     updateCompletedWorkout,
+    deleteCompletedWorkout,
+    completedWorkouts,
   } = useWorkouts();
 
   const [activeTab, setActiveTab] = useState<Tabs>(Tabs.home);
@@ -89,13 +91,26 @@ function App() {
   };
 
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
+    <Layout
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      hideNav={!!session}
+    >
       {session ? (
         <ActiveWorkoutScreen
           workout={session.workout}
           mode={session.mode}
+          completedWorkouts={completedWorkouts}
           onComplete={handleSaveSession}
           onCancel={() => setSession(null)}
+          onDelete={
+            session.mode === "edit"
+              ? async () => {
+                  await deleteCompletedWorkout(session.workout.id);
+                  setSession(null);
+                }
+              : undefined
+          }
         />
       ) : isAddingWorkout ? (
         <AddWorkoutScreen
